@@ -2,6 +2,7 @@ const express = require('express');
 const cors= require('cors');
 const port = process.env.PORT || 5000;
 const app = express();
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion , ObjectId} = require('mongodb');
 // const ObjectId = require('mongodb').ObjectId
@@ -18,47 +19,63 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try{
         await client.connect();
-        // read items
         const itemsCollection = client.db('spicewarehouse').collection('items')
+        //auth
+        app.post('/login', async(req, res)=>{
+            const user = req.body;
+            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{
+                expireIn: '1d'
+            });
+            
+        })
+        // read items
         app.get('/items', async(req, res)=> {
             const query = {}
             const cursor = itemsCollection.find(query);
             const items = await cursor.toArray();
             res.send(items)
         })
-        app.post('/items', async(req, res)=>{
-            const item = req.body;
-            const result = await itemsCollection.insertOne(item);
-            console.log (`user insert ${result.insertedId} `)
-            res.send(result)
-            console.log (result)
-          })
-
         app.get('/items/:id', async(req, res)=> {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const item = await itemsCollection.findOne(query);
             res.send(item);
         })
-        // app.put('/user/:id', async(req, res)=> {
-        //     const id = req.params.id;
-        //     const updatedItem = req.body;
-        //     const filter = {_id : Object(id)};
-        //     const options = { upsert: true };
-        //     const updateDoc = {
-        //         $set: {
-        //             img: updatedItem.img,
-        //             name: updatedItem.name,
-        //             Price: updatedItem.Price,
-        //             quentity: updatedItem.quentity
-        //         }
-        //     };
-        //     const result = await itemsCollection.updateOne(filter, updateDoc, options);
-        //     res.send(result);
+
+        // app.get('/items', async(req, res)=>{
+        //     const email = req.query.email;
+        //     const query = {email: email}
+        //     const cursor = addItemCollection.find(query);
+        //     const item = await cursor.toArray();
+        //     res.send(item)
         // })
 
+        app.post('/items', async(req, res)=>{
+            const item = req.body;
+            const result = await addItemCollection.insertOne(item);
+            console.log (`user insert ${result.insertedId} `)
+            res.send(result)
+            console.log (result)
+          })
 
-     
+
+       
+        app.put('/items/:id', async(req, res)=> {
+            const id = req.params.id;
+            const updatedItem = req.body;
+            const filter = {_id : Object(id)};
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    img: updatedItem.img,
+                    name: updatedItem.name,
+                    Price: updatedItem.Price,
+                    quentity: updatedItem.quentity
+                }
+            };
+            const result = await itemsCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })    
         // delete a item 
        
         app.delete('/items/:id', async(req, res)=>{
