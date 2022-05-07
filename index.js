@@ -19,23 +19,23 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try{
         await client.connect();
-        const itemsCollection = client.db('spicewarehouse').collection('items')
+        const itemsCollection = client.db('spicewarehouse').collection('item')
         //auth
-        app.post('/login', async(req, res)=>{
-            const user = req.body;
-            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{
-                expireIn: '1d'
-            });
+        // app.post('/login', async(req, res)=>{
+        //     const user = req.body;
+        //     const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{
+        //         expireIn: '1d'
+        //     });
             
-        })
+        // })
         // read items
-        app.get('/items', async(req, res)=> {
+        app.get('/item', async(req, res)=> {
             const query = {}
             const cursor = itemsCollection.find(query);
             const items = await cursor.toArray();
             res.send(items)
         })
-        app.get('/items/:id', async(req, res)=> {
+        app.get('/item/:id', async(req, res)=> {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const item = await itemsCollection.findOne(query);
@@ -50,7 +50,7 @@ async function run() {
         //     res.send(item)
         // })
 
-        app.post('/items', async(req, res)=>{
+        app.post('/item', async(req, res)=>{
             const item = req.body;
             const result = await addItemCollection.insertOne(item);
             console.log (`user insert ${result.insertedId} `)
@@ -60,7 +60,7 @@ async function run() {
 
 
        
-        app.put('/items/:id', async(req, res)=> {
+        app.put('/item/:id', async(req, res)=> {
             const id = req.params.id;
             const updatedItem = req.body;
             const filter = {_id : Object(id)};
@@ -78,7 +78,7 @@ async function run() {
         })    
         // delete a item 
        
-        app.delete('/items/:id', async(req, res)=>{
+        app.delete('/item/:id', async(req, res)=>{
             const id = req.params.id;
             const query = {_id: ObjectId(id)}
             const result = await itemsCollection.deleteOne(query);
