@@ -35,6 +35,7 @@ async function run() {
             const items = await cursor.toArray();
             res.send(items)
         })
+        
         app.get('/item/:id', async(req, res)=> {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
@@ -63,7 +64,7 @@ async function run() {
         app.put('/item/:id', async(req, res)=> {
             const id = req.params.id;
             const updatedItem = req.body;
-            const filter = {_id : Object(id)};
+            const filter = {_id : ObjectId(id)};
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
@@ -76,6 +77,7 @@ async function run() {
             const result = await itemsCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })    
+
         // delete a item 
        
         app.delete('/item/:id', async(req, res)=>{
@@ -97,5 +99,5 @@ app.get('/', (req, res)=>{
     res.send('welcome to our website')
 })
 app.listen(port, ()=>{
-    console.log('check our website', port); 
+    console.log('check our website', port);
 })
